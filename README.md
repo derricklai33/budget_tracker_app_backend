@@ -1,6 +1,32 @@
 # T3A2 Budget-Tracker
 Budget Tracking App created for Coder Academy T3A2 Full Stack assignment 
 
+## Running the API
+
+The backend is an Express + TypeScript API using Prisma against the existing PostgreSQL database. It is a drop-in replacement for the original Rails API (kept in place under `app/`, `config/`, `db/` and `spec/` for reference): same routes, status codes, JSON shapes, auth and CORS behaviour.
+
+Requires Node.js 20+.
+
+```bash
+npm install          # also runs `prisma generate`
+cp .env.example .env # then fill in the values below
+npm run dev          # watch mode (ts-node)
+npm run build && npm start
+npm test
+```
+
+### Environment variables
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | yes | PostgreSQL connection string for the existing database, e.g. `postgresql://user:pass@host:5432/budget_tracker_production`. The schema is not modified; `prisma/schema.prisma` mirrors `db/schema.rb`. |
+| `AUTH0_DOMAIN` | yes | Auth0 tenant URL with protocol and trailing slash, e.g. `https://your-tenant.au.auth0.com/` (previously `credentials.auth0.domain`). Used as the JWT issuer; keys are fetched from `<AUTH0_DOMAIN>.well-known/jwks.json`. |
+| `AUTH0_API_IDENTIFIER` | yes | Auth0 API identifier, i.e. the JWT audience (previously `credentials.auth0.api_identifier`). |
+| `PORT` | no | Port to listen on (default `3000`). |
+| `TEST_DATABASE_URL` | no | Database used by `npm test` (default `postgresql://postgres:postgres@localhost:5432/budget_tracker_test`). Tests sync it with `prisma db push` and truncate its tables, so never point it at real data. |
+
+To check the Prisma schema against a database: `npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma` (should report no difference).
+
 ## Purpose
 - 2020 has been a financially hard year worldwide so now, more than ever, it is important to implement a budget. But without a way to track your budget, there is no point making one.    
 - This web application is designed to be a simple one stop shop for anyone who is wanting to track their personal expenses, incomes and shares without all the clutter.
@@ -19,7 +45,8 @@ Budget Tracking App created for Coder Academy T3A2 Full Stack assignment
 - React using Material-UI styled components
 
 #### *Backend*
-- Rails API
+- Express + TypeScript API (originally Rails API)
+- Prisma ORM
 - PostgreSQL database
 - Auth0 authorization + authentication
 - JWT tokens
@@ -32,7 +59,7 @@ Budget Tracking App created for Coder Academy T3A2 Full Stack assignment
 - Netlify deployment
 
 #### *Testing*
-- Rspec - For testing Rails code
+- Jest + Supertest - For testing the API (originally Rspec)
 - Jest + Cypress - For testing React/Javascript code
 
 ## Dataflow Diagram

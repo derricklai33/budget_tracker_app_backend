@@ -1,0 +1,92 @@
+// Mirrors db/schema.rb exactly. The database schema is owned by the existing
+// PostgreSQL database: never run `prisma migrate` / `prisma db push` against it.
+// Verify with:  npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          BigInt    @id @default(autoincrement())
+  description String?   @db.VarChar
+  created_at  DateTime  @db.Timestamp(6)
+  updated_at  DateTime  @db.Timestamp(6)
+  expenses    Expense[]
+  incomes     Income[]
+
+  @@map("categories")
+}
+
+model Expense {
+  id          BigInt    @id @default(autoincrement())
+  description String?   @db.VarChar
+  amount      Float?
+  category_id BigInt
+  created_at  DateTime  @db.Timestamp(6)
+  updated_at  DateTime  @db.Timestamp(6)
+  user_sub    String    @db.VarChar
+  title       String?   @db.VarChar
+  date        DateTime? @db.Date
+  category    Category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_rails_06966d0da0")
+
+  @@index([category_id], map: "index_expenses_on_category_id")
+  @@map("expenses")
+}
+
+model Goal {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+  user_sub   String   @db.VarChar
+  goals_data Json?    @default("{}") @db.Json
+
+  @@map("goals")
+}
+
+model Income {
+  id          BigInt    @id @default(autoincrement())
+  description String?   @db.VarChar
+  amount      Float?
+  category_id BigInt
+  created_at  DateTime  @db.Timestamp(6)
+  updated_at  DateTime  @db.Timestamp(6)
+  user_sub    String    @db.VarChar
+  title       String?   @db.VarChar
+  date        DateTime? @db.Date
+  category    Category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_rails_9e831c5cae")
+
+  @@index([category_id], map: "index_incomes_on_category_id")
+  @@map("incomes")
+}
+
+model Share {
+  id          BigInt   @id @default(autoincrement())
+  description String?  @db.VarChar
+  symbol      String?  @db.VarChar
+  user_sub    String   @db.VarChar
+  created_at  DateTime @db.Timestamp(6)
+  updated_at  DateTime @db.Timestamp(6)
+
+  @@map("shares")
+}
+
+// Rails bookkeeping tables. Declared so Prisma tooling never treats them as drift.
+model ArInternalMetadata {
+  key        String   @id @db.VarChar
+  value      String?  @db.VarChar
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+
+  @@map("ar_internal_metadata")
+}
+
+model SchemaMigration {
+  version String @id @db.VarChar
+
+  @@map("schema_migrations")
+}

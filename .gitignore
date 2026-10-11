@@ -30,3 +30,10 @@
 /config/credentials/development.yml.enc
 
 coverage/.last_run.json
+
+# TypeScript backend
+/node_modules/*
+!/node_modules/.yarn-integrity
+/dist
+.env
+/coverage
